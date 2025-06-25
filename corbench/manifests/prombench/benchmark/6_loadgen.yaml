@@ -1,0 +1,176 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-loadgen
+  namespace: prombench-{{ .PR_NUMBER }}
+data:
+  config.yaml: |
+    querier:
+      groups:
+      - name: simple_range
+        interval: 10s
+        type: range
+        start: 2h
+        end: 1h
+        step: 15s
+        queries:
+        - expr: go_goroutines
+        - expr: container_memory_rss
+        - expr: kubelet_running_pods
+        - expr: codelab_api_http_requests_in_progress
+        - expr: 'codelab_api_requests_total{method="GET",path="/api/bar",status="200"}'
+      - name: aggr_instant
+        interval: 15s
+        type: instant
+        queries:
+        - expr: sum by(image) (container_memory_rss)
+        - expr: sum by(instance) (rate(node_cpu_seconds_total{mode!="idle"}[5m]))
+        - expr: sum by(instance) (rate(node_cpu_seconds_total[5m]))
+        - expr: sum by(instance) (rate(codelab_api_requests_total[5m]))
+        - expr: sum by(instance) (rate(codelab_api_requests_total{method=~"GET|POST"}[5m]))
+      - name: aggr_range
+        interval: 30s
+        type: range
+        start: 1h
+        end: 0h
+        step: 15s
+        queries:
+        - expr: sum by(image) (container_memory_rss)
+        - expr: sum by(instance) (rate(node_cpu_seconds_total{mode!="idle"}[5m]))
+        - expr: sum by(instance) (rate(node_cpu_seconds_total[5m]))
+        - expr: sum by(instance) (rate(codelab_api_requests_total[5m]))
+        - expr: sum by(instance) (rate(codelab_api_requests_total{method=~"GET|POST"}[5m]))
+      - name: heavy_instant
+        interval: 60s
+        queries:
+        - expr: rate(codelab_api_requests_total{method=~"GET|POST"}[5m])
+        - expr: sum without(instance) (rate(codelab_api_requests_total{method=~"GET|POST"}[5m]))
+        - expr: histogram_quantile(0.99, sum by(path, method, le) (rate(codelab_api_request_duration_seconds_bucket{method="POST"}[5m])))
+        - expr: histogram_quantile(0.99, sum by(instance, le) (rate(codelab_api_request_duration_seconds_bucket{method="POST"}[5m])))
+      - name: arithmetic_operation
+        interval: 30s
+        type: instant
+        queries:
+        - expr: rate(go_memstats_frees_total[5m]) * 60
+        - expr: rate(codelab_api_requests_total{method=~"GET|POST"}[5m]) - rate(codelab_api_request_duration_seconds_sum{method=~"GET|POST"}[5m])
+        - expr: rate(go_gc_duration_seconds_sum{job=~"fake-webservers-[0-9]+"}[5m]) / rate(go_gc_duration_seconds_count{job=~"fake-webservers-[0-9]+"}[5m])
+        - expr: sum by (instance, job) (rate(codelab_api_request_errors_total[5m])) / sum by (instance, job) (rate(go_memstats_mallocs_total[10m]))
+      - name: logic_operator
+        interval: 30s
+        type: instant
+        queries:
+        - expr: codelab_api_request_duration_seconds_sum{status="200"} or codelab_api_request_duration_seconds_sum{status="500"}
+        - expr: codelab_api_request_duration_seconds_count{method="POST"} unless codelab_api_request_duration_seconds_count{status="500"}
+      - name: topk
+        interval: 10s
+        type: instant
+        queries:
+        - expr: topk(20, sum(rate(go_gc_duration_seconds_count[5m])) by (instance, job))
+        - expr: topk(10, sum(codelab_api_request_duration_seconds_count) by (method,job))
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-loadgen-scaler
+  namespace: prombench-{{ .PR_NUMBER }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loadgen-scaler
+  template:
+    metadata:
+      namespace: prombench-{{ .PR_NUMBER }}
+      labels:
+        app: loadgen-scaler
+    spec:
+      serviceAccountName: loadgen-scaler
+      containers:
+      - name: prom-load-generator
+        image: docker.io/prominfra/scaler:master
+        imagePullPolicy: Always
+        args:
+        - "scale"
+        - "-f"
+        - "/etc/scaler/webserver.yaml"
+        - "-v"
+        - "PR_NUMBER:{{ .PR_NUMBER }}"        #Used to specify fake-webserver's namespace
+        - "{{ .LOADGEN_SCALE_UP_REPLICAS }}"  #Scale Up replicas
+        - "1"                                 #Scale Down replicas
+        - "15m"                               #Sleep Interval between scaling
+        volumeMounts:
+        - name: webserver-config-volume
+          mountPath: /etc/scaler
+      volumes:
+      - name: webserver-config-volume
+        configMap:
+          name: fake-webserver-config-for-scaler
+      nodeSelector:
+        node-name: nodes-{{ .PR_NUMBER }}
+        isolation: none
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-loadgen-querier
+  namespace: prombench-{{ .PR_NUMBER }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loadgen-querier
+  template:
+    metadata:
+      namespace: prombench-{{ .PR_NUMBER }}
+      labels:
+        app: loadgen-querier
+    spec:
+      containers:
+      - name: prom-load-generator
+        image: docker.io/prominfra/load-generator:master
+        imagePullPolicy: Always
+        args:
+        - "prombench-{{ .PR_NUMBER }}"
+        - "{{ .PR_NUMBER }}"
+        env:
+        - name: DOMAIN_NAME
+          value: "{{ .DOMAIN_NAME }}"
+        - name: GOMAXPROCS
+          valueFrom:
+            resourceFieldRef:
+              containerName: prom-load-generator
+              resource: requests.cpu
+        resources:
+          requests:
+            cpu: 200m
+            memory: 100Mi
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/loadgen
+        ports:
+        - name: loadgen-port
+          containerPort: 8080
+      volumes:
+      - name: config-volume
+        configMap:
+          name: prometheus-loadgen
+      nodeSelector:
+        node-name: nodes-{{ .PR_NUMBER }}
+        isolation: none
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-loadgen-querier
+  namespace: prombench-{{ .PR_NUMBER }}
+  labels:
+    app: loadgen-querier
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+  - name: prometheus
+    port: 80
+    targetPort: loadgen-port
+  selector:
+    app: loadgen-querier

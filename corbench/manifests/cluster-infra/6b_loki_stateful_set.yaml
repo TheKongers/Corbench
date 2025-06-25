@@ -1,0 +1,156 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: loki
+  labels:
+    app: loki
+data:
+  loki.yaml: |
+    auth_enabled: false
+
+    common:
+      instance_addr: 127.0.0.1
+      path_prefix: /data/loki
+      storage:
+        filesystem:
+          chunks_directory: /data/loki/chunks
+          rules_directory: /data/loki/rules
+      replication_factor: 1
+      ring:
+        kvstore:
+          store: inmemory
+
+    query_range:
+      results_cache:
+        cache:
+          embedded_cache:
+            enabled: true
+            max_size_mb: 100
+
+    schema_config:
+      configs:
+      - from: 2024-10-20
+        store: tsdb
+        object_store: filesystem
+        schema: v13
+        index:
+          prefix: index_
+          period: 24h
+
+    pattern_ingester:
+      enabled: true
+      metric_aggregation:
+        enabled: true
+        loki_address: localhost:3100
+
+    frontend:
+      encoding: protobuf
+
+    server:
+      http_listen_port: 3100
+      grpc_listen_port: 9096
+      log_level: info
+      grpc_server_max_concurrent_streams: 1000
+
+    compactor:
+      retention_enabled: true
+      delete_request_store: filesystem
+    limits_config:
+      retention_period: 2184h
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: loki-headless
+  labels:
+    app: loki
+spec:
+  clusterIP: None
+  ports:
+    - port: 3100
+      protocol: TCP
+      name: http-metrics
+      targetPort: http-metrics
+  selector:
+    app: loki
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: loki
+  labels:
+    app: loki
+spec:
+  podManagementPolicy: OrderedReady
+  replicas: 1
+  selector:
+    matchLabels:
+      app: loki
+  serviceName: loki-headless
+  updateStrategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: loki
+        name: loki
+    spec:
+      serviceAccountName: loki
+      securityContext:
+        fsGroup: 10001
+        runAsGroup: 10001
+        runAsNonRoot: true
+        runAsUser: 10001
+      containers:
+        - name: loki
+          image: grafana/loki:3.2.1
+          imagePullPolicy: IfNotPresent
+          args:
+            - "-config.file=/etc/loki/loki.yaml"
+          resources:
+            requests:
+              cpu: 100m
+              memory: 200Mi
+          volumeMounts:
+            - name: config
+              mountPath: /etc/loki
+            - name: storage
+              mountPath: /data
+              subPath: loki-data
+          ports:
+            - name: http-metrics
+              containerPort: 3100
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: http-metrics
+            initialDelaySeconds: 45
+          securityContext:
+            readOnlyRootFilesystem: true
+      nodeSelector:
+        node-name: main-node
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: config
+          configMap:
+            name: loki
+        - name: storage
+          persistentVolumeClaim:
+            claimName: prometheus-meta
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: loki
+  labels:
+    app: loki
+spec:
+  type: ClusterIP
+  ports:
+    - port: 3100
+      protocol: TCP
+      name: http-metrics
+      targetPort: http-metrics
+  selector:
+    app: loki

@@ -1,0 +1,29 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-prometheus
+  namespace: prombench-{{ .PR_NUMBER }}
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: '605'
+    nginx.ingress.kubernetes.io/proxy-send-timeout: '605'
+    nginx.ingress.kubernetes.io/proxy-read-timeout: '605'
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - backend:
+          service:
+            name: prometheus-test-{{ normalise .RELEASE }}
+            port:
+              number: 80
+        path: /{{ .PR_NUMBER }}/prometheus-release
+        pathType: Prefix
+      - backend:
+          service:
+            name: prometheus-test-pr-{{ .PR_NUMBER }}
+            port:
+              number: 80
+        path: /{{ .PR_NUMBER }}/prometheus-pr
+        pathType: Prefix

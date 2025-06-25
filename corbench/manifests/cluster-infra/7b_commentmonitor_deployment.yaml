@@ -1,0 +1,86 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: comment-monitor
+  labels:
+    app: comment-monitor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: comment-monitor
+  template:
+    metadata:
+      labels:
+        app: comment-monitor
+    spec:
+      containers:
+      - image: docker.io/prominfra/comment-monitor:master
+        imagePullPolicy: Always
+        args:
+        - "--config=/etc/cm/config.yml"
+        - "--whsecret=/etc/github/whsecret"
+        name: comment-monitor
+        env:
+        - name: DOMAIN_NAME
+          value: {{ .DOMAIN_NAME }}
+        - name: GITHUB_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: oauth-token
+              key: oauth
+        volumeMounts:
+        - name: whsecret
+          mountPath: /etc/github
+          readOnly: true
+        - name: comment-monitor-config
+          mountPath: /etc/cm/
+        ports:
+        - name: cm-port
+          containerPort: 8080
+      volumes:
+      - name: whsecret
+        secret:
+          secretName: whsecret
+      - name: comment-monitor-config
+        configMap:
+          name: comment-monitor-config
+      terminationGracePeriodSeconds: 300
+      nodeSelector:
+        eks.amazonaws.com/nodegroup: main-node
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: comment-monitor
+  labels:
+    app: comment-monitor
+spec:
+  type: NodePort
+  ports:
+  - name: cm-port
+    port: 80
+    targetPort: cm-port
+  selector:
+    app: comment-monitor
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-comment-monitor
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - backend:
+          service:
+            name: comment-monitor
+            port:
+              name: cm-port
+        path: /hook
+        pathType: Prefix
