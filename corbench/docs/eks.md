@@ -1,15 +1,6 @@
-# Prombench in EKS
+# EKS Deployment
 
-Run Prombench tests in [Elastic Kubernetes Service (EKS)](https://aws.amazon.com/eks/).
-
-## Table of Contents
-
-1. [Setup Prombench](#setup-prombench)
-    - [Create the Main Node](#create-the-main-node)
-    - [Deploy Monitoring Components](#deploy-monitoring-components)
-2. [Usage](#usage)
-    - [Start a Benchmarking Test Manually](#start-a-benchmarking-test-manually)
-    - [Stopping a Benchmarking Test Manually](#stopping-a-benchmarking-test-manually)
+[Elastic Kubernetes Service (EKS)](https://aws.amazon.com/eks/).
 
 ## Setup Prombench
 
@@ -41,7 +32,7 @@ Run Prombench tests in [Elastic Kubernetes Service (EKS)](https://aws.amazon.com
 
     ```bash
     export AUTH_FILE=<path to yaml credentials file that was created in the last step>
-    export CLUSTER_NAME=prombench
+    export CLUSTER_NAME=corbench
     export ZONE=us-east-1
     export EKS_WORKER_ROLE_ARN=<Amazon EKS worker node IAM role ARN>
     export EKS_CLUSTER_ROLE_ARN=<Amazon EKS cluster role ARN>
@@ -70,6 +61,7 @@ Run Prombench tests in [Elastic Kubernetes Service (EKS)](https://aws.amazon.com
     export WH_SECRET=<GitHub webhook secret>
     export GITHUB_ORG=prometheus
     export GITHUB_REPO=prometheus
+    export SERVICEACCOUNT_CLIENT_EMAIL=<Amazon Account ARN>
     ```
 
 2. **Deploy the Monitoring Components**:

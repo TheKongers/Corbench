@@ -15,11 +15,7 @@ The `./manifest` directory contains configuration files. We can outline :
 
 ## Prombench Setup
 
-Prombench can be run on different providers. Follow these instructions based on your provider:
-
 - [Google Kubernetes Engine (GKE)](docs/gke.md)
-- [Kubernetes In Docker (KIND)](docs/kind.md)
-- [Elastic Kubernetes Service (EKS)](docs/eks.md)
 
 ### Setting Up GitHub Actions
 
