@@ -1,6 +1,6 @@
 # infra: CLI Tool for Managing Kubernetes Clusters
 
-`infra` is a CLI tool designed to create, scale, and delete Kubernetes clusters and deploy manifest files. It supports GKE, kind, and EKS, and is designed to be easily extendable for additional providers.
+`infra` is a CLI tool designed to create, scale, and delete Kubernetes clusters and deploy manifest files.
 
 ## Table of Contents
 
@@ -8,8 +8,6 @@
 2. [Usage and Examples](#usage-and-examples)
    - [General Flags](#general-flags)
    - [Commands](#commands)
-     - [GKE Commands](#gke-commands)
-     - [kind Commands](#kind-commands)
      - [EKS Commands](#eks-commands)
 3. [Building Docker Image](#building-docker-image)
 
@@ -36,84 +34,6 @@ Flags:
 ```
 
 ### Commands
-
-#### GKE Commands
-
-- **gke info**
-  ```bash
-  gke info -v hashStable:COMMIT1 -v hashTesting:COMMIT2
-  ```
-
-- **gke cluster create**
-  ```bash
-  gke cluster create -a service-account.json -f FileOrFolder
-  ```
-
-- **gke cluster delete**
-  ```bash
-  gke cluster delete -a service-account.json -f FileOrFolder
-  ```
-
-- **gke nodes create**
-  ```bash
-  gke nodes create -a service-account.json -f FileOrFolder
-  ```
-
-- **gke nodes delete**
-  ```bash
-  gke nodes delete -a service-account.json -f FileOrFolder
-  ```
-
-- **gke nodes check-running**
-  ```bash
-  gke nodes check-running -a service-account.json -f FileOrFolder
-  ```
-
-- **gke nodes check-deleted**
-  ```bash
-  gke nodes check-deleted -a service-account.json -f FileOrFolder
-  ```
-
-- **gke resource apply**
-  ```bash
-  gke resource apply -a service-account.json -f manifestsFileOrFolder \
-    -v GKE_PROJECT_ID:test -v ZONE:europe-west1-b -v CLUSTER_NAME:test \
-    -v hashStable:COMMIT1 -v hashTesting:COMMIT2
-  ```
-
-- **gke resource delete**
-  ```bash
-  gke resource delete -a service-account.json -f manifestsFileOrFolder \
-    -v GKE_PROJECT_ID:test -v ZONE:europe-west1-b -v CLUSTER_NAME:test \
-    -v hashStable:COMMIT1 -v hashTesting:COMMIT2
-  ```
-
-#### kind Commands
-
-- **kind info**
-  ```bash
-  kind info -v hashStable:COMMIT1 -v hashTesting:COMMIT2
-  ```
-
-- **kind cluster create**
-  ```bash
-  kind cluster create -f File -v PR_NUMBER:$PR_NUMBER -v CLUSTER_NAME:$CLUSTER_NAME
-  ```
-
-- **kind cluster delete**
-  ```bash
-  kind cluster delete -f File -v PR_NUMBER:$PR_NUMBER -v CLUSTER_NAME:$CLUSTER_NAME
-  ```
-
-- **kind resource apply**
-  ```bash
-  kind resource apply -f manifestsFileOrFolder -v hashStable:COMMIT1 -v hashTesting:COMMIT2
-  ```
-
-- **kind resource delete**
-  ```bash
-  kind resource delete -f manifestsFileOrFolder -v hashStable:COMMIT1 -v hashTesting:COMMIT2
-  ```
 
 #### EKS Commands
 
