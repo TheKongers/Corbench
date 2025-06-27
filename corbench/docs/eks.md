@@ -114,7 +114,7 @@
 
     ```bash
     export AUTH_FILE=<path to yaml credentials file that was created>
-    export CLUSTER_NAME=prombench
+    export CLUSTER_NAME=corbench
     export SEPARATOR=,
     export EKS_WORKER_ROLE_ARN=<Amazon EKS worker node IAM role ARN>
     export EKS_CLUSTER_ROLE_ARN=<Amazon EKS cluster role ARN>
