@@ -6,5 +6,5 @@ The `./manifest` directory contains all configuration files
 
 ## Prombench Setup
 
-- [Elastic Kubernetes Service](docs/eks.md)
+- [EKS deployment](docs/eks.md)
 
