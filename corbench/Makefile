@@ -1,5 +1,6 @@
 INFRA_CMD  ?= ../infra/infra
 PROVIDER   ?= gke
+MANIFEST_FILE = c-manifests
 
 cluster_create:
 	${INFRA_CMD} ${PROVIDER} cluster create -a ${AUTH_FILE} \
@@ -8,7 +9,7 @@ cluster_create:
 		-v EKS_SUBNET_IDS:${EKS_SUBNET_IDS} -v SEPARATOR:${SEPARATOR} \
 		-v CLUSTER_NAME:${CLUSTER_NAME} -v PR_NUMBER:${PR_NUMBER} \
 		-v AWS_ACCOUNT_ID:$$(echo ${EKS_WORKER_ROLE_ARN} | cut -d':' -f5) \
-		-f manifests/cluster_${PROVIDER}.yaml
+		-f ${MANIFEST_FILE}/cluster_${PROVIDER}.yaml
 ifeq (${PROVIDER},eks)
 	./setup-ebs-csi.sh
 endif
@@ -24,7 +25,7 @@ cluster_resource_apply:
 		-v OAUTH_TOKEN="$(printf ${OAUTH_TOKEN} | base64 -w 0)" \
 		-v WH_SECRET="$(printf ${WH_SECRET} | base64 -w 0)" \
 		-v GITHUB_ORG:${GITHUB_ORG} -v GITHUB_REPO:${GITHUB_REPO} \
-		-f manifests/cluster-infra
+		-f ${MANIFEST_FILE}/cluster-infra
 
 cluster_delete:
 	${INFRA_CMD} ${PROVIDER} cluster delete -a ${AUTH_FILE} \
@@ -33,7 +34,7 @@ cluster_delete:
 		-v EKS_SUBNET_IDS:${EKS_SUBNET_IDS} -v SEPARATOR:${SEPARATOR} \
 		-v CLUSTER_NAME:${CLUSTER_NAME} -v PR_NUMBER:${PR_NUMBER} \
 		-v AWS_ACCOUNT_ID:$$(echo ${EKS_WORKER_ROLE_ARN} | cut -d':' -f5) \
-		-f manifests/cluster_${PROVIDER}.yaml
+		-f ${MANIFEST_FILE}/cluster_${PROVIDER}.yaml
 
 # /prombench <...> --bench.directory
 BENCHMARK_DIRECTORY := $(if $(BENCHMARK_DIRECTORY),$(BENCHMARK_DIRECTORY),manifests/prombench)

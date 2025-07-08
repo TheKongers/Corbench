@@ -15,21 +15,21 @@ kind: ConfigMap
 metadata:
   name: alert-rules
 data:
-  prombench.rules.yml: |
+  corbench.rules.yml: |
     groups:
-    - name: gke-related
+    - name: corbench-related
       rules:
       - alert: benchmarkTestsRunning
-        expr: floor((time() - kube_namespace_created{namespace=~"prombench-[0-9]+"})/(60*60*24)) >= 3
+        expr: floor((time() - kube_namespace_created{namespace=~"corbench-[0-9]+"})/(60*60*24)) >= 3
         labels:
           severity: info
           prNum: '{{"{{"}} $labels.prNum {{"}}"}}'
-          org: prometheus
-          repo: prometheus
+          org: cortexproject
+          repo: cortex
         annotations:
           description: >
-            Benchmark tests are running for {{"{{"}} $value {{"}}"}} days!
-            If this is intended ignore this message otherwise you can cancel it by commenting: `/prombench cancel`
+            Cortex benchmark tests are running for {{"{{"}} $value {{"}}"}} days!
+            If this is intended ignore this message otherwise you can cancel it by commenting: `/corbench cancel`
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -43,28 +43,7 @@ data:
     rule_files:
     - /etc/prometheus/alerts/*.yml
 
-    alerting:
-      alertmanagers:
-      - kubernetes_sd_configs:
-        - role: pod
-        tls_config:
-          ca_file: /var/run/secrets/kubernetes.io/serviceaccount/ca.crt
-        bearer_token_file: /var/run/secrets/kubernetes.io/serviceaccount/token
-        relabel_configs:
-        - source_labels: [__meta_kubernetes_namespace]
-          regex: default
-          action: keep
-        - source_labels: [__meta_kubernetes_pod_label_app]
-          regex: alertmanager
-          action: keep
-        - source_labels: [__meta_kubernetes_pod_label_app]
-          regex: alertmanager
-          action: replace
-          target_label: __alerts_path__
-          replacement: '/alertmanager/api/v2/alerts'
-        - source_labels: [__meta_kubernetes_pod_container_port_number]
-          regex:
-          action: drop
+
 
     scrape_configs:
 
@@ -106,7 +85,7 @@ data:
       metric_relabel_configs:
       - action: replace
         source_labels: [__name__, namespace]
-        regex: kube_namespace_created;prombench-(\d+)
+        regex: kube_namespace_created;corbench-(\d+)
         target_label: prNum
         replacement: $1
 
@@ -142,7 +121,7 @@ data:
       relabel_configs:
       - action: keep
         source_labels: [__meta_kubernetes_service_label_app]
-        regex: prometheus|prometheus-meta|alertmanager|node-exporter|loadgen-querier|sink
+        regex: prometheus|prometheus-meta|node-exporter|loadgen-querier|cortex
       - action: replace
         source_labels: [__meta_kubernetes_service_label_app]
         target_label: job
@@ -150,8 +129,8 @@ data:
         source_labels: [__meta_kubernetes_namespace]
         target_label: namespace
       - action: replace
-        source_labels: [__meta_kubernetes_service_label_prometheus]
-        target_label: prometheus
+        source_labels: [__meta_kubernetes_service_label_cortex]
+        target_label: cortex
       - action: replace
         source_labels: [__meta_kubernetes_pod_node_name]
         target_label: nodeName
@@ -159,25 +138,21 @@ data:
         source_labels: [__meta_kubernetes_pod_label_node]
         target_label: node
       - action: replace
-        source_labels: [__meta_kubernetes_namespace,__meta_kubernetes_service_label_prometheus]
-        regex: prombench-(\d+);test-pr-\d+
+        source_labels: [__meta_kubernetes_namespace,__meta_kubernetes_service_label_cortex]
+        regex: corbench-(\d+);test-pr-\d+
         target_label: __metrics_path__
-        replacement: /${1}/prometheus-pr/metrics
+        replacement: /${1}/cortex-pr/metrics
       - action: replace
-        source_labels: [__meta_kubernetes_namespace,__meta_kubernetes_service_label_prometheus]
-        regex: prombench-(\d+);test-(?:master|main|v.+)
+        source_labels: [__meta_kubernetes_namespace,__meta_kubernetes_service_label_cortex]
+        regex: corbench-(\d+);test-(?:master|main|v.+)
         target_label: __metrics_path__
-        replacement: /${1}/prometheus-release/metrics
+        replacement: /${1}/cortex-release/metrics
       - action: replace
         source_labels: [__meta_kubernetes_namespace,__meta_kubernetes_service_label_prometheus]
         regex: default;meta
         target_label: __metrics_path__
         replacement: /prometheus-meta/metrics
-      - action: replace
-        source_labels: [__meta_kubernetes_namespace,__meta_kubernetes_service_label_app]
-        regex: default;alertmanager
-        target_label: __metrics_path__
-        replacement: /alertmanager/metrics
+
 
 ---
 apiVersion: apps/v1
@@ -208,7 +183,7 @@ spec:
         - "--storage.tsdb.path=/data"
         - "--storage.tsdb.retention.size=500GB"  # 50% of the total storage available.
         - "--web.enable-lifecycle"
-        - "--web.external-url=http://prombench.prometheus.io/prometheus-meta"
+        - "--web.external-url=http://corbench.cortexproject.io/prometheus-meta"
         name: prometheus
         resources:
           requests:
@@ -267,8 +242,8 @@ spec:
   ingressClassName: nginx
   tls:
   - hosts:
-    - prombench.prometheus.io
-    secretName: prombench-prometheus-tls
+    - corbench.cortexproject.io
+    secretName: corbench-cortex-tls
   rules:
   - http:
       paths:

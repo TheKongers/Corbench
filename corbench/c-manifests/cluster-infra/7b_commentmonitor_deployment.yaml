@@ -15,7 +15,7 @@ spec:
         app: comment-monitor
     spec:
       containers:
-      - image: docker.io/prominfra/comment-monitor:master
+      - image: docker.io/prominfra/comment-monitor:master  # TODO: Replace with your custom corbench comment-monitor image
         imagePullPolicy: Always
         args:
         - "--config=/etc/cm/config.yml"

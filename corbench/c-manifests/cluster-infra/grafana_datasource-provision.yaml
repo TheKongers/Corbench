@@ -1,4 +1,4 @@
-#When Grafana starts, it will update/insert this datasource.
+# When Grafana starts, it will update/insert this datasource.
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -26,13 +26,5 @@ data:
         tlsCACert: "..."
         tlsClientCert: "..."
         tlsClientKey: "..."
-      version: 1
-      editable: true
-    - name: loki-meta
-      type: loki
-      access: proxy
-      orgId: 1
-      url: http://loki:3100
-      isDefault: false
       version: 1
       editable: true
