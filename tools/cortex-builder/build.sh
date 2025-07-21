@@ -25,7 +25,7 @@ fi
 git checkout pr-branch
 
 echo ">> Building Cortex binaries"
-if ! make BUILD_IN_CONTAINER=false exes; then
+if ! make BUILD_IN_CONTAINER=false cmd/cortex/cortex; then
     echo "ERROR:: Building of Cortex binaries failed"
     exit 1;
 fi
@@ -41,17 +41,4 @@ else
     exit 1;
 fi
 
-# Copy additional Cortex binaries if they exist
-if [ -f "./cmd/query-tee/query-tee-amd64" ]; then
-    cp ./cmd/query-tee/query-tee-amd64 $VOLUME_DIR/query-tee
-elif [ -f "./cmd/query-tee/query-tee" ]; then
-    cp ./cmd/query-tee/query-tee $VOLUME_DIR/query-tee
-fi
-
-if [ -f "./cmd/thanosconvert/thanosconvert-amd64" ]; then
-    cp ./cmd/thanosconvert/thanosconvert-amd64 $VOLUME_DIR/thanosconvert
-elif [ -f "./cmd/thanosconvert/thanosconvert" ]; then
-    cp ./cmd/thanosconvert/thanosconvert $VOLUME_DIR/thanosconvert
-fi
-
-echo ">> Cortex build completed successfully" 
+echo ">> Cortex build completed successfully"
