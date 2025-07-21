@@ -1,0 +1,115 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: avalanche-{{ .PR_NUMBER }}
+  namespace: corbench-{{ .PR_NUMBER }}
+  labels:
+    app: avalanche
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: avalanche
+  template:
+    metadata:
+      labels:
+        app: avalanche
+    spec:
+      serviceAccountName: avalanche
+      nodeSelector:
+        node-name: nodes-{{ .PR_NUMBER }}
+      containers:
+      - name: avalanche
+        image: quay.io/prometheuscommunity/avalanche:main
+        args:
+        - "--gauge-metric-count=1000"
+        - "--series-count=10000"
+        - "--remote-url=http://cortex-test-pr-{{ .PR_NUMBER }}:9009/api/v1/push"
+        - "--remote-batch-size=1000"
+        - "--remote-concurrency-limit=10"
+        - "--value-interval=10"
+        - "--series-interval=30"
+        - "--metric-name-prefix=avalanche_pr_"
+        resources:
+          requests:
+            cpu: 1
+            memory: 1Gi
+          limits:
+            cpu: 2
+            memory: 2Gi
+        ports:
+        - name: metrics
+          containerPort: 9001
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: avalanche-release-{{ .PR_NUMBER }}
+  namespace: corbench-{{ .PR_NUMBER }}
+  labels:
+    app: avalanche-release
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: avalanche-release
+  template:
+    metadata:
+      labels:
+        app: avalanche-release
+    spec:
+      serviceAccountName: avalanche
+      nodeSelector:
+        node-name: nodes-{{ .PR_NUMBER }}
+      containers:
+      - name: avalanche
+        image: quay.io/prometheuscommunity/avalanche:main
+        args:
+        - "--gauge-metric-count=1000"
+        - "--series-count=10000"
+        - "--remote-url=http://cortex-test-release-{{ .PR_NUMBER }}:9009/api/v1/push"
+        - "--remote-batch-size=1000"
+        - "--remote-concurrency-limit=10"
+        - "--value-interval=10"
+        - "--series-interval=30"
+        - "--metric-name-prefix=avalanche_release_"
+        resources:
+          requests:
+            cpu: 1
+            memory: 1Gi
+          limits:
+            cpu: 2
+            memory: 2Gi
+        ports:
+        - name: metrics
+          containerPort: 9001
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: avalanche-{{ .PR_NUMBER }}
+  namespace: corbench-{{ .PR_NUMBER }}
+  labels:
+    app: avalanche
+spec:
+  ports:
+  - name: metrics
+    port: 9001
+    targetPort: metrics
+  selector:
+    app: avalanche
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: avalanche-release-{{ .PR_NUMBER }}
+  namespace: corbench-{{ .PR_NUMBER }}
+  labels:
+    app: avalanche-release
+spec:
+  ports:
+  - name: metrics
+    port: 9001
+    targetPort: metrics
+  selector:
+    app: avalanche-release

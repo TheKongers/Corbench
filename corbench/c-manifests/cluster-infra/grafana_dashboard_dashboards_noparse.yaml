@@ -3,7 +3,7 @@ kind: ConfigMap
 metadata:
   name: grafana-dashboards
 data:
-  cortex-overview.json: |
+  cortex-overview-fixed.json: |
     {
       "__requires": [
         {
@@ -40,7 +40,7 @@ data:
             "datasource": "prometheus-meta",
             "targets": [
               {
-                "expr": "sum(rate(cortex_distributor_samples_in_total[5m]))",
+                "expr": "sum(rate(cortex_distributor_samples_in_total{namespace=\"corbench-${prNumber}\"}[5m]))",
                 "legendFormat": "Samples/sec"
               }
             ],
@@ -59,7 +59,7 @@ data:
             "datasource": "prometheus-meta",
             "targets": [
               {
-                "expr": "sum(rate(cortex_query_frontend_queries_total[5m]))",
+                "expr": "sum(rate(cortex_query_frontend_queries_total{namespace=\"corbench-${prNumber}\"}[5m]))",
                 "legendFormat": "Queries/sec"
               }
             ],
@@ -72,7 +72,7 @@ data:
             "datasource": "prometheus-meta",
             "targets": [
               {
-                "expr": "sum(cortex_ingester_memory_series)",
+                "expr": "sum(cortex_ingester_memory_series{namespace=\"corbench-${prNumber}\"})",
                 "legendFormat": "Series"
               }
             ],
@@ -85,11 +85,11 @@ data:
             "datasource": "prometheus-meta",
             "targets": [
               {
-                "expr": "histogram_quantile(0.99, sum(rate(cortex_request_duration_seconds_bucket{route=\"/api/v1/push\"}[5m])) by (le))",
+                "expr": "histogram_quantile(0.99, sum(rate(cortex_request_duration_seconds_bucket{route=\"/api/v1/push\",namespace=\"corbench-${prNumber}\"}[5m])) by (le))",
                 "legendFormat": "99th percentile"
               },
               {
-                "expr": "histogram_quantile(0.50, sum(rate(cortex_request_duration_seconds_bucket{route=\"/api/v1/push\"}[5m])) by (le))",
+                "expr": "histogram_quantile(0.50, sum(rate(cortex_request_duration_seconds_bucket{route=\"/api/v1/push\",namespace=\"corbench-${prNumber}\"}[5m])) by (le))",
                 "legendFormat": "50th percentile"
               }
             ],
@@ -102,17 +102,59 @@ data:
             "datasource": "prometheus-meta",
             "targets": [
               {
-                "expr": "histogram_quantile(0.99, sum(rate(cortex_request_duration_seconds_bucket{route=~\"/api/v1/query.*\"}[5m])) by (le))",
+                "expr": "histogram_quantile(0.99, sum(rate(cortex_request_duration_seconds_bucket{route=~\"/api/v1/query.*\",namespace=\"corbench-${prNumber}\"}[5m])) by (le))",
                 "legendFormat": "99th percentile"
               },
               {
-                "expr": "histogram_quantile(0.50, sum(rate(cortex_request_duration_seconds_bucket{route=~\"/api/v1/query.*\"}[5m])) by (le))",
+                "expr": "histogram_quantile(0.50, sum(rate(cortex_request_duration_seconds_bucket{route=~\"/api/v1/query.*\",namespace=\"corbench-${prNumber}\"}[5m])) by (le))",
                 "legendFormat": "50th percentile"
               }
             ],
             "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4}
+          },
+          {
+            "id": 6,
+            "title": "PR vs Release Comparison - Ingestion Latency",
+            "type": "timeseries",
+            "datasource": "prometheus-meta",
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.99, sum(rate(cortex_request_duration_seconds_bucket{route=\"/api/v1/push\",namespace=\"corbench-${prNumber}\",cortex_instance=\"PR-${prNumber}\"}[5m])) by (le))",
+                "legendFormat": "PR-${prNumber} - 99th percentile"
+              },
+              {
+                "expr": "histogram_quantile(0.99, sum(rate(cortex_request_duration_seconds_bucket{route=\"/api/v1/push\",namespace=\"corbench-${prNumber}\",cortex_instance=\"Release-${prNumber}\"}[5m])) by (le))",
+                "legendFormat": "Release - 99th percentile"
+              }
+            ],
+            "gridPos": {"h": 8, "w": 24, "x": 0, "y": 12}
           }
       ],
+      "templating": {
+        "list": [
+          {
+            "allValue": null,
+            "current": {},
+            "datasource": "prometheus-meta",
+            "definition": "label_values(namespace)",
+            "description": "PR number",
+            "hide": 0,
+            "includeAll": false,
+            "multi": false,
+            "name": "prNumber",
+            "options": [],
+            "query": {
+              "query": "label_values(namespace)",
+              "refId": "StandardVariableQuery"
+            },
+            "refresh": 1,
+            "regex": "corbench-(\\d+)",
+            "skipUrlSync": false,
+            "sort": 0,
+            "type": "query"
+          }
+        ]
+      },
       "time": {
         "from": "now-1h",
         "to": "now"
