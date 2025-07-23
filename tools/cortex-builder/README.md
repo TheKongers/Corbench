@@ -7,4 +7,4 @@ You can upload this docker image in the correct linux/amd64 archetecture used by
 
 ### Built Binaries
 
-The builder will create the following binaries in the volume directory
+The builder will automatically pull and create the cortex binary in the volume directory
