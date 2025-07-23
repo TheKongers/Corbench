@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ingress-config
+  namespace: corbench-{{ .PR_NUMBER }}
+data:
+  INGRESS_HOST: "ingress-nginx-controller.ingress-nginx"

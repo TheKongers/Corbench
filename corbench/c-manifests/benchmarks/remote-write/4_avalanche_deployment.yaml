@@ -1,19 +1,19 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: avalanche-{{ .PR_NUMBER }}
+  name: avalanche-pr-{{ .PR_NUMBER }}
   namespace: corbench-{{ .PR_NUMBER }}
   labels:
-    app: avalanche
+    app: avalanche-pr
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: avalanche
+      app: avalanche-pr
   template:
     metadata:
       labels:
-        app: avalanche
+        app: avalanche-pr
     spec:
       serviceAccountName: avalanche
       nodeSelector:
@@ -21,15 +21,21 @@ spec:
       containers:
       - name: avalanche
         image: quay.io/prometheuscommunity/avalanche:main
+        env:
+        - name: INGRESS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: ingress-config
+              key: INGRESS_HOST
+        - name: PR_NUMBER
+          value: "{{ .PR_NUMBER }}"
         args:
-        - "--gauge-metric-count=1000"
-        - "--series-count=10000"
-        - "--remote-url=http://cortex-test-pr-{{ .PR_NUMBER }}:9009/api/v1/push"
-        - "--remote-batch-size=1000"
-        - "--remote-concurrency-limit=10"
-        - "--value-interval=10"
-        - "--series-interval=30"
-        - "--metric-name-prefix=avalanche_pr_"
+        - "--gauge-metric-count=1"
+        - "--series-count=4"
+        - "--remote-url=http://$(INGRESS_HOST)/$(PR_NUMBER)/cortex-pr"
+        - "--remote-batch-size=4"
+        - "--value-interval=0"
+        - "--series-interval=0"
         resources:
           requests:
             cpu: 1
@@ -44,7 +50,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: avalanche-release-{{ .PR_NUMBER }}
+  name: avalanche-{{ normalise .RELEASE }}
   namespace: corbench-{{ .PR_NUMBER }}
   labels:
     app: avalanche-release
@@ -52,11 +58,11 @@ spec:
   replicas: 1
   selector:
     matchLabels:
-      app: avalanche-release
+      app: avalanche-{{ normalise .RELEASE }}
   template:
     metadata:
       labels:
-        app: avalanche-release
+        app: avalanche-{{ normalise .RELEASE }}
     spec:
       serviceAccountName: avalanche
       nodeSelector:
@@ -64,15 +70,23 @@ spec:
       containers:
       - name: avalanche
         image: quay.io/prometheuscommunity/avalanche:main
+        env:
+        - name: INGRESS_HOST
+          valueFrom:
+            configMapKeyRef:
+              name: ingress-config
+              key: INGRESS_HOST
+        - name: PR_NUMBER
+          value: "{{ .PR_NUMBER }}"
+        - name: RELEASE
+          value: "{{ normalise .RELEASE }}"
         args:
-        - "--gauge-metric-count=1000"
-        - "--series-count=10000"
-        - "--remote-url=http://cortex-test-release-{{ .PR_NUMBER }}:9009/api/v1/push"
-        - "--remote-batch-size=1000"
-        - "--remote-concurrency-limit=10"
-        - "--value-interval=10"
-        - "--series-interval=30"
-        - "--metric-name-prefix=avalanche_release_"
+        - "--gauge-metric-count=1"
+        - "--series-count=4"
+        - "--remote-url=http://$(INGRESS_HOST)/$(PR_NUMBER)/cortex-release"
+        - "--remote-batch-size=4"
+        - "--value-interval=0"
+        - "--series-interval=0"
         resources:
           requests:
             cpu: 1
@@ -87,29 +101,29 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: avalanche-{{ .PR_NUMBER }}
+  name: avalanche-pr-{{ .PR_NUMBER }}
   namespace: corbench-{{ .PR_NUMBER }}
   labels:
-    app: avalanche
+    app: avalanche-pr
 spec:
   ports:
   - name: metrics
     port: 9001
     targetPort: metrics
   selector:
-    app: avalanche
+    app: avalanche-pr
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: avalanche-release-{{ .PR_NUMBER }}
+  name: avalanche-{{ normalise .RELEASE }}
   namespace: corbench-{{ .PR_NUMBER }}
   labels:
-    app: avalanche-release
+    app: avalanche-{{ normalise .RELEASE }}
 spec:
   ports:
   - name: metrics
     port: 9001
     targetPort: metrics
   selector:
-    app: avalanche-release
+    app: avalanche-{{ normalise .RELEASE }}

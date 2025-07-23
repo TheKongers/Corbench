@@ -8,11 +8,20 @@ metadata:
     nginx.ingress.kubernetes.io/proxy-body-size: "0"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /api/v1/push
 spec:
   ingressClassName: nginx
   rules:
   - http:
       paths:
+      - path: /{{ .PR_NUMBER }}/cortex-pr/api/v1/write
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: cortex-test-pr-{{ .PR_NUMBER }}
+            port:
+              number: 9009
       - path: /{{ .PR_NUMBER }}/cortex-pr
         pathType: Prefix
         backend:
@@ -20,10 +29,17 @@ spec:
             name: cortex-test-pr-{{ .PR_NUMBER }}
             port:
               number: 9009
+      - path: /{{ .PR_NUMBER }}/cortex-release/api/v1/write
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: cortex-test-{{ normalise .RELEASE }}
+            port:
+              number: 9009
       - path: /{{ .PR_NUMBER }}/cortex-release
         pathType: Prefix
         backend:
           service:
-            name: cortex-test-release-{{ .PR_NUMBER }}
+            name: cortex-test-{{ normalise .RELEASE }}
             port:
               number: 9009
