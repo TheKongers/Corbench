@@ -37,7 +37,7 @@ cluster_delete:
 		-f ${MANIFEST_FILE}/cluster_${PROVIDER}.yaml
 
 # /prombench <...> --bench.directory
-BENCHMARK_DIRECTORY := $(if $(BENCHMARK_DIRECTORY),$(BENCHMARK_DIRECTORY),manifests/prombench)
+BENCHMARK_DIRECTORY := $(if $(BENCHMARK_DIRECTORY),$(BENCHMARK_DIRECTORY),c-manifests/benchmarks)
 # /prombench <...> --bench.version
 BENCHMARK_VERSION := $(if $(BENCHMARK_VERSION),$(BENCHMARK_VERSION),master)
 PROMBENCH_GIT_REPOSITORY ?= https://github.com/prometheus/test-infra.git
@@ -82,6 +82,9 @@ deploy: maybe_pull_custom_version node_create resource_apply clean_tmp_dir
 # if k8s resources are not already cleared
 clean: maybe_pull_custom_version resource_delete node_delete clean_tmp_dir
 
+# Default PR_NUMBER to 'default' if not set to avoid invalid nodegroup names
+PR_NUMBER ?= default
+
 node_create:
 	${INFRA_CMD} ${PROVIDER} nodes create -a ${AUTH_FILE} \
 		-v ZONE:${ZONE} -v GKE_PROJECT_ID:${GKE_PROJECT_ID} \
@@ -96,15 +99,15 @@ resource_apply:
 		-v CLUSTER_NAME:${CLUSTER_NAME} \
 		-v PR_NUMBER:${PR_NUMBER} -v RELEASE:${RELEASE} -v DOMAIN_NAME:${DOMAIN_NAME} \
 		-v GITHUB_ORG:${GITHUB_ORG} -v GITHUB_REPO:${GITHUB_REPO} \
-		-f ${PROMBENCH_DIR}/${BENCHMARK_DIRECTORY}/benchmark
+		-f ${PROMBENCH_DIR}/${BENCHMARK_DIRECTORY}/remote-write
 
 # Required because namespace and cluster-role are not part of the created nodes
 resource_delete:
 	$(INFRA_CMD) ${PROVIDER} resource delete -a ${AUTH_FILE} \
 		-v ZONE:${ZONE} -v GKE_PROJECT_ID:${GKE_PROJECT_ID} \
 		-v CLUSTER_NAME:${CLUSTER_NAME} -v PR_NUMBER:${PR_NUMBER} \
-		-f ${PROMBENCH_DIR}/${BENCHMARK_DIRECTORY}/benchmark/1c_cluster-role-binding.yaml \
-		-f ${PROMBENCH_DIR}/${BENCHMARK_DIRECTORY}/benchmark/1a_namespace.yaml
+		-f ${PROMBENCH_DIR}/${BENCHMARK_DIRECTORY}/remote-write/1c_cluster-role-binding.yaml \
+		-f ${PROMBENCH_DIR}/${BENCHMARK_DIRECTORY}/remote-write/1a_namespace.yaml
 
 node_delete:
 	$(INFRA_CMD) ${PROVIDER} nodes delete -a ${AUTH_FILE} \
