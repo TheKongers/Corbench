@@ -26,8 +26,8 @@ data:
         }
       ],
       "id": null,
-      "title": "Cortex Overview",
-      "description": "High-level overview of Cortex cluster performance and health",
+      "title": "Corbench Metrics",
+      "description": "Cortex PR vs Cortex Release Metrics",
       "tags": ["cortex", "overview", "corbench"],
       "style": "dark",
       "timezone": "browser",
@@ -44,7 +44,7 @@ data:
                 "legendFormat": "Samples/sec"
               }
             ],
-            "gridPos": {"h": 4, "w": 6, "x": 0, "y": 0},
+            "gridPos": {"h": 6, "w": 12, "x": 0, "y": 0},
             "fieldConfig": {
               "defaults": {
                 "unit": "short",
@@ -54,19 +54,6 @@ data:
           },
           {
             "id": 2,
-            "title": "Query Rate",
-            "type": "stat",
-            "datasource": "prometheus-meta",
-            "targets": [
-              {
-                "expr": "sum(rate(cortex_query_frontend_queries_total{namespace=\"corbench-${prNumber}\"}[5m]))",
-                "legendFormat": "Queries/sec"
-              }
-            ],
-            "gridPos": {"h": 4, "w": 6, "x": 6, "y": 0}
-          },
-          {
-            "id": 3,
             "title": "Active Series",
             "type": "stat",
             "datasource": "prometheus-meta",
@@ -76,58 +63,76 @@ data:
                 "legendFormat": "Series"
               }
             ],
-            "gridPos": {"h": 4, "w": 6, "x": 12, "y": 0}
+            "gridPos": {"h": 6, "w": 12, "x": 12, "y": 0}
+          },
+          {
+            "id": 3,
+            "title": "PR vs Release - Cortex Latency 99th Percentile",
+            "type": "timeseries",
+            "datasource": "prometheus-meta",
+            "targets": [
+              {
+                "expr": "histogram_quantile(0.99, sum(rate(cortex_request_duration_seconds_bucket{namespace=\"corbench-${prNumber}\",cortex=~\"test-pr-.*\"}[5m])) by (le))",
+                "legendFormat": "PR Version - 99th percentile"
+              },
+              {
+                "expr": "histogram_quantile(0.99, sum(rate(cortex_request_duration_seconds_bucket{namespace=\"corbench-${prNumber}\",cortex=~\"test-.*\",cortex!~\"test-pr-.*\"}[5m])) by (le))",
+                "legendFormat": "Release Version - 99th percentile"
+              }
+            ],
+            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 6},
+            "fieldConfig": {
+              "defaults": {
+                "unit": "s",
+                "color": {"mode": "palette-classic"}
+              }
+            }
           },
           {
             "id": 4,
-            "title": "Ingestion Latency",
+            "title": "PR vs Release - Ingester Appends Rate",
             "type": "timeseries",
             "datasource": "prometheus-meta",
             "targets": [
               {
-                "expr": "histogram_quantile(0.99, sum(rate(cortex_request_duration_seconds_bucket{route=\"/api/v1/push\",namespace=\"corbench-${prNumber}\"}[5m])) by (le))",
-                "legendFormat": "99th percentile"
+                "expr": "sum(rate(cortex_distributor_ingester_appends_total{namespace=\"corbench-${prNumber}\",cortex=~\"test-pr-.*\"}[5m]))",
+                "legendFormat": "PR Version - Appends/sec"
               },
               {
-                "expr": "histogram_quantile(0.50, sum(rate(cortex_request_duration_seconds_bucket{route=\"/api/v1/push\",namespace=\"corbench-${prNumber}\"}[5m])) by (le))",
-                "legendFormat": "50th percentile"
+                "expr": "sum(rate(cortex_distributor_ingester_appends_total{namespace=\"corbench-${prNumber}\",cortex=~\"test-.*\",cortex!~\"test-pr-.*\"}[5m]))",
+                "legendFormat": "Release Version - Appends/sec"
               }
             ],
-            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 4}
+            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 6},
+            "fieldConfig": {
+              "defaults": {
+                "unit": "ops",
+                "color": {"mode": "palette-classic"}
+              }
+            }
           },
           {
             "id": 5,
-            "title": "Query Latency",
+            "title": "PR vs Release - Ingester Client Request Duration 99th Percentile",
             "type": "timeseries",
             "datasource": "prometheus-meta",
             "targets": [
               {
-                "expr": "histogram_quantile(0.99, sum(rate(cortex_request_duration_seconds_bucket{route=~\"/api/v1/query.*\",namespace=\"corbench-${prNumber}\"}[5m])) by (le))",
-                "legendFormat": "99th percentile"
+                "expr": "histogram_quantile(0.99, sum(rate(cortex_ingester_client_request_duration_seconds_bucket{namespace=\"corbench-${prNumber}\",cortex=~\"test-pr-.*\"}[5m])) by (le))",
+                "legendFormat": "PR Version - 99th percentile"
               },
               {
-                "expr": "histogram_quantile(0.50, sum(rate(cortex_request_duration_seconds_bucket{route=~\"/api/v1/query.*\",namespace=\"corbench-${prNumber}\"}[5m])) by (le))",
-                "legendFormat": "50th percentile"
+                "expr": "histogram_quantile(0.99, sum(rate(cortex_ingester_client_request_duration_seconds_bucket{namespace=\"corbench-${prNumber}\",cortex=~\"test-.*\",cortex!~\"test-pr-.*\"}[5m])) by (le))",
+                "legendFormat": "Release Version - 99th percentile"
               }
             ],
-            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 4}
-          },
-          {
-            "id": 6,
-            "title": "PR vs Release Comparison - Ingestion Latency",
-            "type": "timeseries",
-            "datasource": "prometheus-meta",
-            "targets": [
-              {
-                "expr": "histogram_quantile(0.99, sum(rate(cortex_request_duration_seconds_bucket{route=\"/api/v1/push\",namespace=\"corbench-${prNumber}\",cortex_instance=\"PR-${prNumber}\"}[5m])) by (le))",
-                "legendFormat": "PR-${prNumber} - 99th percentile"
-              },
-              {
-                "expr": "histogram_quantile(0.99, sum(rate(cortex_request_duration_seconds_bucket{route=\"/api/v1/push\",namespace=\"corbench-${prNumber}\",cortex_instance=\"Release-${prNumber}\"}[5m])) by (le))",
-                "legendFormat": "Release - 99th percentile"
+            "gridPos": {"h": 8, "w": 24, "x": 0, "y": 14},
+            "fieldConfig": {
+              "defaults": {
+                "unit": "s",
+                "color": {"mode": "palette-classic"}
               }
-            ],
-            "gridPos": {"h": 8, "w": 24, "x": 0, "y": 12}
+            }
           }
       ],
       "templating": {
