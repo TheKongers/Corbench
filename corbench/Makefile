@@ -27,9 +27,6 @@ cluster_resource_apply:
 		-v GITHUB_ORG:${GITHUB_ORG} -v GITHUB_REPO:${GITHUB_REPO} \
 		-f ${MANIFEST_FILE}/cluster-infra
 
-cluster_resource_delete:
-	kubectl delete -f c-manifests/cluster-infra/ --ignore-not-found=true
-	
 cluster_delete:
 	${INFRA_CMD} ${PROVIDER} cluster delete -a ${AUTH_FILE} \
 		-v ZONE:${ZONE} -v GKE_PROJECT_ID:${GKE_PROJECT_ID} \
