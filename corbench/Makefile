@@ -1,5 +1,5 @@
-INFRA_CMD  ?= ../infra/infra
-PROVIDER   ?= gke
+INFRA_CMD  ?= ./infra/infra
+PROVIDER   ?= eks
 MANIFEST_FILE = c-manifests
 
 cluster_create:
