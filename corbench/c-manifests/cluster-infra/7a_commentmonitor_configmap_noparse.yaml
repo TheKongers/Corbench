@@ -12,7 +12,7 @@ data:
         * To stop benchmark: `/corbench cancel`
         * To print help: `/corbench help`
 
-        **Cortex tag format:** `master-<commit-hash>` (e.g., `master-6b3bd7b`)
+        **Cortex tag format:** `master-<commit-hash>` (e.g., `master-6b3bd7b`) This will be the version of cortex that your PR will be benchmarked against
         * MAKE SURE TO PICK AN EXISTING CORTEX TAG FROM BELOW LINK, OR DEPLOYMENT WILL BE STUCK AND YOU WILL HAVE TO CANCEL AND START AGAIN
         * Check what cortex tags are avaliable to choose from at https://hub.docker.com/r/cortexproject/cortex/tags
 
@@ -35,12 +35,14 @@ data:
         comment_template: |
           ⏱️ Welcome to Cortex Benchmarking Tool. ⏱️
 
-          **Compared versions:** [**`PR-{{ index . "PR_NUMBER" }}`**](http://{{ index . "DOMAIN_NAME" }}/{{ index . "PR_NUMBER" }}/cortex-pr) and [**`{{ index . "CORTEX_TAG" }}`**](http://{{ index . "DOMAIN_NAME" }}/{{ index . "PR_NUMBER" }}/cortex-release)
+          **Compared versions:** [**`PR-{{ index . "PR_NUMBER" }}`**] and [**`{{ index . "CORTEX_TAG" }}`**]
 
           After the successful deployment ([check status here](https://github.com/cortexproject/cortex/actions/workflows/corbench.yml)), the benchmarking results can be viewed at:
 
           - [Infra Cluster Dashboard](http://{{ index . "DOMAIN_NAME" }}/grafana/d/bet53hqyjx4hsb/node-metrics?orgId=1)
           - [Corbench Dashboard](http://{{ index . "DOMAIN_NAME" }}/grafana/d/fet53hqpt9wxsb/corbench-metrics?orgId=1&var-pr-number={{ index . "PR_NUMBER" }})
+
+          If deployment fails, make sure to clean up using /corbench cancel and double check your cortex tag exists: https://hub.docker.com/r/cortexproject/cortex/tags
 
           **Available Commands:**
           * To stop benchmark: `/corbench cancel`
