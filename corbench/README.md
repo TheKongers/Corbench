@@ -2,7 +2,7 @@
 
 ## Configuration Files
 
-The `./manifest` directory contains all configuration files
+The `./c-manifests` directory contains all configuration files
 
 ## Prombench Setup
 
