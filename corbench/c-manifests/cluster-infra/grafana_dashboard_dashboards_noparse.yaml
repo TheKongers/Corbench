@@ -76,8 +76,16 @@ data:
                 "legendFormat": "PR Version - 99th percentile"
               },
               {
+                "expr": "histogram_quantile(0.50, sum(rate(cortex_request_duration_seconds_bucket{namespace=\"corbench-${prNumber}\",cortex=~\"test-pr-.*\"}[5m])) by (le))",
+                "legendFormat": "PR Version - 50th percentile"
+              },
+              {
                 "expr": "histogram_quantile(0.99, sum(rate(cortex_request_duration_seconds_bucket{namespace=\"corbench-${prNumber}\",cortex=~\"test-.*\",cortex!~\"test-pr-.*\"}[5m])) by (le))",
                 "legendFormat": "Release Version - 99th percentile"
+              },
+              {
+                "expr": "histogram_quantile(0.50, sum(rate(cortex_request_duration_seconds_bucket{namespace=\"corbench-${prNumber}\",cortex=~\"test-.*\",cortex!~\"test-pr-.*\"}[5m])) by (le))",
+                "legendFormat": "Release Version - 50th percentile"
               }
             ],
             "gridPos": {"h": 8, "w": 12, "x": 0, "y": 6},
@@ -122,14 +130,68 @@ data:
                 "legendFormat": "PR Version - 99th percentile"
               },
               {
+                "expr": "histogram_quantile(0.50, sum(rate(cortex_ingester_client_request_duration_seconds_bucket{namespace=\"corbench-${prNumber}\",cortex=~\"test-pr-.*\"}[5m])) by (le))",
+                "legendFormat": "PR Version - 50th percentile"
+              },
+              {
                 "expr": "histogram_quantile(0.99, sum(rate(cortex_ingester_client_request_duration_seconds_bucket{namespace=\"corbench-${prNumber}\",cortex=~\"test-.*\",cortex!~\"test-pr-.*\"}[5m])) by (le))",
                 "legendFormat": "Release Version - 99th percentile"
+              },
+              {
+                "expr": "histogram_quantile(0.50, sum(rate(cortex_ingester_client_request_duration_seconds_bucket{namespace=\"corbench-${prNumber}\",cortex=~\"test-.*\",cortex!~\"test-pr-.*\"}[5m])) by (le))",
+                "legendFormat": "Release Version - 50th percentile"
               }
             ],
-            "gridPos": {"h": 8, "w": 24, "x": 0, "y": 14},
+            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 14},
             "fieldConfig": {
               "defaults": {
                 "unit": "s",
+                "color": {"mode": "palette-classic"}
+              }
+            }
+          },
+          {
+            "id": 6,
+            "title": "PR vs Release - Distributor Received Samples Rate",
+            "type": "timeseries",
+            "datasource": "prometheus-meta",
+            "targets": [
+              {
+                "expr": "sum(rate(cortex_distributor_received_samples_total{namespace=\"corbench-${prNumber}\",cortex=~\"test-pr-.*\"}[5m]))",
+                "legendFormat": "PR Version - Samples/sec"
+              },
+              {
+                "expr": "sum(rate(cortex_distributor_received_samples_total{namespace=\"corbench-${prNumber}\",cortex=~\"test-.*\",cortex!~\"test-pr-.*\"}[5m]))",
+                "legendFormat": "Release Version - Samples/sec"
+              }
+            ],
+            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 14},
+            "fieldConfig": {
+              "defaults": {
+                "unit": "ops",
+                "color": {"mode": "palette-classic"}
+              }
+            }
+          },
+          {
+            "id": 7,
+            "title": "PR vs Release - Ingester Inflight Push Requests",
+            "type": "timeseries",
+            "datasource": "prometheus-meta",
+            "targets": [
+              {
+                "expr": "sum(cortex_ingester_inflight_push_requests{namespace=\"corbench-${prNumber}\",cortex=~\"test-pr-.*\"})",
+                "legendFormat": "PR Version - Inflight Requests"
+              },
+              {
+                "expr": "sum(cortex_ingester_inflight_push_requests{namespace=\"corbench-${prNumber}\",cortex=~\"test-.*\",cortex!~\"test-pr-.*\"})",
+                "legendFormat": "Release Version - Inflight Requests"
+              }
+            ],
+            "gridPos": {"h": 8, "w": 24, "x": 0, "y": 22},
+            "fieldConfig": {
+              "defaults": {
+                "unit": "short",
                 "color": {"mode": "palette-classic"}
               }
             }

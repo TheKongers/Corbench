@@ -25,7 +25,7 @@ data:
       - name: cancel
         event_type: corbench_stop
         comment_template: |
-          Cortex benchmark cancel is in progress.
+          Cortex benchmark cancel is in progress. See status here: https://github.com/cortexproject/cortex/actions/workflows/corbench.yml
 
       - name: "" # start is a default (empty command).
         event_type: corbench_start
@@ -39,8 +39,8 @@ data:
 
           After the successful deployment ([check status here](https://github.com/cortexproject/cortex/actions/workflows/corbench.yml)), the benchmarking results can be viewed at:
 
-          - [Infra Cluster Dashboard](http://{{ index . "DOMAIN_NAME" }}/grafana/d/bet53hqyjx4hsb/node-metrics?orgId=1)
-          - [Corbench Dashboard](http://{{ index . "DOMAIN_NAME" }}/grafana/d/fet53hqpt9wxsb/corbench-metrics?orgId=1&var-pr-number={{ index . "PR_NUMBER" }})
+          - [Infra Cluster Dashboard](http://a6f1abccb155d422da0ca0b906de709b-1932259410.us-west-2.elb.amazonaws.com/grafana/d/cetkogsl2ed4we/node-metrics?orgId=1)
+          - [Corbench Dashboard](http://a6f1abccb155d422da0ca0b906de709b-1932259410.us-west-2.elb.amazonaws.com/grafana/d/eetkogsyiuo74c/corbench-metrics?orgId=1&var-prNumber={{ index . "PR_NUMBER" }})
 
           If deployment fails, make sure to clean up using /corbench cancel and double check your cortex tag exists: https://hub.docker.com/r/cortexproject/cortex/tags
 
