@@ -26,6 +26,11 @@ cluster_resource_apply:
 		-v WH_SECRET="$(printf ${WH_SECRET} | base64 -w 0)" \
 		-v GITHUB_ORG:${GITHUB_ORG} -v GITHUB_REPO:${GITHUB_REPO} \
 		-f ${MANIFEST_FILE}/cluster-infra
+	# Patch secrets immediately after deployment with correct values since for some reason 1_secrets isn't working properly
+	kubectl patch secret oauth-token -p '{"data":{"oauth":"'$$(printf "${OAUTH_TOKEN}" | base64)'"}}'
+	kubectl patch secret whsecret -p '{"data":{"whsecret":"'$$(printf "${WH_SECRET}" | base64)'"}}'
+	# Restart comment monitor to pick up the updated secrets
+	kubectl rollout restart deployment/comment-monitor
 
 cluster_delete:
 	${INFRA_CMD} ${PROVIDER} cluster delete -a ${AUTH_FILE} \
@@ -36,9 +41,9 @@ cluster_delete:
 		-v AWS_ACCOUNT_ID:$$(echo ${EKS_WORKER_ROLE_ARN} | cut -d':' -f5) \
 		-f ${MANIFEST_FILE}/cluster_${PROVIDER}.yaml
 
-# /prombench <...> --bench.directory
+
 BENCHMARK_DIRECTORY := $(if $(BENCHMARK_DIRECTORY),$(BENCHMARK_DIRECTORY),c-manifests/benchmarks)
-# /prombench <...> --bench.version
+
 BENCHMARK_VERSION := $(if $(BENCHMARK_VERSION),$(BENCHMARK_VERSION),master)
 PROMBENCH_GIT_REPOSITORY ?= https://github.com/prometheus/test-infra.git
 PROMBENCH_DIR ?= .

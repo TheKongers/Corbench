@@ -2,9 +2,8 @@
 
 ## Configuration Files
 
-The `./c-manifests` directory contains all configuration files
+The `./manifest` directory contains all configuration files
 
 ## Prombench Setup
 
 - [EKS deployment](docs/eks.md)
-
