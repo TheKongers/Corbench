@@ -11,7 +11,7 @@ nodegroups:
       - {{ $subnetId }}
       {{ end }}
     instancetypes:
-      - r5d.2xlarge # This machine has SSD. SSD is used to give fast-lookup to Cortex servers being benchmarked.
+      - r5d.2xlarge 
     scalingconfig:
       desiredsize: 2
       maxsize: 2

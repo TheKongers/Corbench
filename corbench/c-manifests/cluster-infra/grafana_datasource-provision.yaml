@@ -6,11 +6,9 @@ metadata:
 data:
   prometheus-datasource.yaml: |
     apiVersion: 1
-
     deleteDatasources:
       - name: prometheus-meta
         orgId: 1
-
     datasources:
     - name: prometheus-meta
       type: prometheus

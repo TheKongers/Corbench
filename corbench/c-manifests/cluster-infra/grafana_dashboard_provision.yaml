@@ -6,7 +6,6 @@ metadata:
 data:
   corbench-dashboard.yaml: |
     apiVersion: 1
-
     providers:
     - name: 'default'
       orgId: 1
