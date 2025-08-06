@@ -17,7 +17,7 @@
     ```
 
 2. **Create a VPC**:
-    - Set up a [VPC](https://docs.aws.amazon.com/eks/latest/userguide/create-public-private-vpc.html) with public subnets. (you may already have premade vpcss in your region, you can use those as well)
+    - Set up a [VPC](https://docs.aws.amazon.com/eks/latest/userguide/create-public-private-vpc.html) with public subnets. (you may already have premade vpcs in your region, you can use those as well)
 
 3. **Create IAM Roles**:
     - **EKS Cluster Role**: Create an [Amazon EKS cluster role](https://docs.aws.amazon.com/eks/latest/userguide/service_IAM_role.html) with the following policy:
