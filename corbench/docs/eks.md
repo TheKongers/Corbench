@@ -58,6 +58,8 @@
 
 4. **Set Environment Variables and Deploy the Cluster**:
 
+    IMPORTANT: Before running any make commands locally, make sure to build the infra tool in the /infra directory for your computer! The current build may not be sutible for your machine's archetecture, but make sure if you are uploading the corbench docker image to always build for linux/amd64. More details can be found in [corbench/infra/README.md](../infra/README.md)
+
     ```bash
     export AUTH_FILE=<path to yaml credentials file that was created in the last step>
     export CLUSTER_NAME=corbench

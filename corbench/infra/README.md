@@ -11,7 +11,7 @@ GOOS=linux GOARCH=amd64 go build -o infra infra.go
 ```
 
 The architecture must be linux/amd64 as this is what the docker image runs on.
-We are building it outside of the docker image to avoid having to download many imports that are required to build this infra tool every time this image is pulled.
+We are building it outside of the docker image to avoid having to download many imports that are required to build this infra tool every time this image is pulled. If using the infra tool locally, just run go build without specifying architecture.
 
 ## Table of Contents
 
