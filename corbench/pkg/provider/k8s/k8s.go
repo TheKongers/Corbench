@@ -39,7 +39,7 @@ import (
 	"k8s.io/client-go/util/retry"
 	_ "k8s.io/cloud-provider-gcp/pkg/clientauthplugin/gcp"
 
-	"test-infra/corbench/pkg/provider"
+	"github.com/cortexproject/test-infra/corbench/pkg/provider"
 )
 
 func init() {

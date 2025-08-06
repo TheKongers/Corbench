@@ -35,8 +35,8 @@ import (
 	clientcmdapi "k8s.io/client-go/tools/clientcmd/api"
 	awsToken "sigs.k8s.io/aws-iam-authenticator/pkg/token"
 
-	"test-infra/corbench/pkg/provider"
-	k8sProvider "test-infra/corbench/pkg/provider/k8s"
+	"github.com/cortexproject/test-infra/corbench/pkg/provider"
+	k8sProvider "github.com/cortexproject/test-infra/corbench/pkg/provider/k8s"
 )
 
 type Resource = provider.Resource
