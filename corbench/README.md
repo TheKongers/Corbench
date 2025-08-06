@@ -1,12 +1,8 @@
 # Automated Cortex E2E Testing and Benchmarking
 
-## Configuration Files
-
-The `./manifest` directory contains all configuration files
-
 ## Corbench Setup
 
-- [EKS deployment](docs/eks.md)
+To deploy this tool, follow the steps here: [Getting Started](docs/eks.md)
 
 # Archetecture
 
