@@ -1,4 +1,4 @@
-module corbench
+module test-infra
 
 go 1.23.0
 

@@ -21,8 +21,8 @@ import (
 
 	"gopkg.in/alecthomas/kingpin.v2"
 
-	"corbench/corbench/pkg/provider"
-	"corbench/corbench/pkg/provider/eks"
+	"test-infra/corbench/pkg/provider"
+	"test-infra/corbench/pkg/provider/eks"
 )
 
 func main() {
