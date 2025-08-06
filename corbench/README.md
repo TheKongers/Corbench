@@ -4,7 +4,7 @@
 
 The `./manifest` directory contains all configuration files
 
-## Prombench Setup
+## Corbench Setup
 
 - [EKS deployment](docs/eks.md)
 
