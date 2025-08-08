@@ -27,9 +27,10 @@ cluster_resource_apply:
 		-v GITHUB_ORG:${GITHUB_ORG} -v GITHUB_REPO:${GITHUB_REPO} \
 		-f ${MANIFEST_FILE}/cluster-infra
 	# Patch secrets immediately after deployment with correct values since for some reason 1_secrets isn't working properly
-	kubectl patch secret oauth-token -p '{"data":{"oauth":"'$$(printf "${OAUTH_TOKEN}" | base64)'"}}'
-	kubectl patch secret whsecret -p '{"data":{"whsecret":"'$$(printf "${WH_SECRET}" | base64)'"}}'
-	# Restart comment monitor to pick up the updated secrets
+	export AWS_ACCESS_KEY_ID=$$(grep "accesskeyid:" ${AUTH_FILE} | awk '{print $$2}') && \
+	export AWS_SECRET_ACCESS_KEY=$$(grep "secretaccesskey:" ${AUTH_FILE} | awk '{print $$2}') && \
+	kubectl patch secret oauth-token -p '{"data":{"oauth":"'$$(printf "${OAUTH_TOKEN}" | base64)'"}}' && \
+	kubectl patch secret whsecret -p '{"data":{"whsecret":"'$$(printf "${WH_SECRET}" | base64)'"}}' && \
 	kubectl rollout restart deployment/comment-monitor
 
 cluster_delete:

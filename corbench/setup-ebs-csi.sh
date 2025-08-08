@@ -19,6 +19,10 @@ echo "Creating IAM role for EBS CSI driver..."
 
 echo "Printing OIDC provider: ${OIDC_ID}"
 
+# Set AWS credentials for cluster access
+export AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID:-$(grep "accesskeyid:" ../auth_file.yaml | awk '{print $2}')}
+export AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY:-$(grep "secretaccesskey:" ../auth_file.yaml | awk '{print $2}')}
+
 # Connect kubectl to the cluster
 aws eks update-kubeconfig --name ${CLUSTER_NAME} --region ${ZONE}
 
