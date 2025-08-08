@@ -2,7 +2,7 @@
 
 ## Corbench Setup
 
-To deploy this tool, follow the steps here: [Getting Started](docs/eks.md)
+To deploy this tool, follow the steps here: [Getting Started](docs/deployment.md)
 
 # Archetecture
 
