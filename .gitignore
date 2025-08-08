@@ -1,0 +1,5 @@
+# Authentication file
+auth_file.yaml
+
+# Infra binary
+infra/infra
