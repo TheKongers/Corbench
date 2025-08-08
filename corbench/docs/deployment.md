@@ -63,7 +63,7 @@ Before starting, it would be helpful to have some sort of note taking system to 
         -   Add a description tag describing the purpose of this access key and where it will be used (Cortex Benchmarking Tool Deployment) then click **Create Access Key**
         -   Note Down the **Access Key** and **Secret Access Key** values. They will be used in an auth YAML file
 
-    - Store the credentials by following the instructions in [auth_file.yaml.template](/auth_file.yaml.template) using the keys you just created:
+    - Copy [auth_file.yaml.template](/auth_file.yaml.template) and rename it to auth_file.yaml in the root directory and fill in your actual AWS credentials using the keys you just created. The format should look something like this:
 
     ```yaml
     accesskeyid: <Access Key>
@@ -258,6 +258,23 @@ Before starting, it would be helpful to have some sort of note taking system to 
     9. Click **Add webhook**
 
     The webhook should be set up! To give it a test, create a PR and type in /corbench and a response should show up. Next we will set up the github workflow to enable benchmark testing.
+
+    Next, we need to add repository secrets. Steps are below:
+    1. Go to Cortex repo settings
+    2. On the left nav bar, click on **Secrets and Variales** then from the options that drop down, click on **actions**
+    3. Click **New Repository Secret**
+    4. Name the secret `EKS_CLUSTER_ROLE_ARN` and put in your `<Cluster IAM role ARN>` as the value. then click **add secret**
+    5. Repeat the steps above for `EKS_WORKER_ROLE_ARN` putting in the value `<Worker Node IAM role ARN>` and also for `EKS_SUBNET_IDS` putting in the value `<SUBNETID1>,<SUBNETID2>,<SUBNETID3>` (these are the same as the enviroment variables you exported in previous steps)
+    6. Again make a secret named `TEST_INFRA_PROVIDER_AUTH` but with the base64 encoded value of your `auth_file.yaml` file. Instructions on how to do this are below.
+
+    The secret `TEST_INFRA_PROVIDER_AUTH` is special, it needs to be base64 encoded. You should have filled out your auth_file.yaml with your credentials, so from the root directory, run:
+
+    ```bash
+    base64 -i auth_file.yaml
+    ```
+
+    Copy the output, then make a repository secret with the name `TEST_INFRA_PROVIDER_AUTH` and the value you just copied from the output.
+
 
     In the cortex repo, in the `.github/workflows/` directory, add the following yml file and name it corbench.yml (or whatever you want):
     ```yaml
