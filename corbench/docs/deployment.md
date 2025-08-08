@@ -207,6 +207,7 @@ Before starting, it would be helpful to have some sort of note taking system to 
         6. Select the following scopes: `public_repo`, `read:org`, `write:discussion`
         7. scroll to the bottom and click **Generate token**
         8. Take note of the token as you will need it for github integration
+        9. Give the Corbench github account repository contributor permissions to allow it to send messages. (this can be done in the respository settings)
 
 2. **Main Node Pods Deployment**:
     Now we are ready to deploy the comment monitor, Prometheus, and grafana pods in the main node.
