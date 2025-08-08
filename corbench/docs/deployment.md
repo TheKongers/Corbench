@@ -70,8 +70,6 @@ Before starting, it would be helpful to have some sort of note taking system to 
     secretaccesskey: <Secret Access Key>
     ```
 
-    Keep note of the **path** to this YAML file that you just made, it will be needed later.
-
 2. **Create Public Subnets**:
     - Set up a [VPC](https://docs.aws.amazon.com/eks/latest/userguide/create-public-private-vpc.html) with public subnets. Steps are below (you may already have premade vpcs in your region, you can use those as well):
     1. Go to the VPC Dashboard in your aws account
