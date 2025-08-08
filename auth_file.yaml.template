@@ -1,0 +1,6 @@
+# AWS Credentials Template
+# Copy this file and rename it to auth_file.yaml and fill in your actual AWS credentials
+# DO NOT commit auth_file.yaml to the repository
+
+accesskeyid: <Access Key>
+secretaccesskey: <Secret Access Key>

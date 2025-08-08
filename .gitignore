@@ -2,4 +2,4 @@
 auth_file.yaml
 
 # Infra binary
-infra/infra
+corbench/infra/infra

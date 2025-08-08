@@ -63,7 +63,7 @@ Before starting, it would be helpful to have some sort of note taking system to 
         -   Add a description tag describing the purpose of this access key and where it will be used (Cortex Benchmarking Tool Deployment) then click **Create Access Key**
         -   Note Down the **Access Key** and **Secret Access Key** values. They will be used in an auth YAML file
 
-    - Store the credentials in the [auth_file.yaml](/auth_file.yaml) file using the keys you just created:
+    - Store the credentials by following the instructions in [auth_file.yaml.template](/auth_file.yaml.template) using the keys you just created:
 
     ```yaml
     accesskeyid: <Access Key>
