@@ -197,7 +197,7 @@ Before starting, it would be helpful to have some sort of note taking system to 
 
 1. **GitHub Integration 1/2**:
     - First generate a GitHub auth token:
-        - Login with the [Corbench github account](https://github.com/corbench) and generate a [new auth token](https://github.com/settings/tokens).
+        - Login with the [Corbench github account](https://github.com/corbench) (the credentials to this github account can be found in my handoff doc for my internship) and generate a [new auth token](https://github.com/settings/tokens).
         Steps:
         1. After logging into the account, go to settings, then click on **Developer Settigns**. This should be near the bottom of the left hand side options.
         2. Click on **Personal access tokens** then choose **Tokens (classic)**
